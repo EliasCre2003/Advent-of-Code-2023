@@ -3,8 +3,8 @@ from math import floor, ceil, sqrt, prod
 
 class Race:
     def __init__(self, time: int, distance: int):
-        self.time = time
-        self.distance = distance
+        self.time: int = time
+        self.distance: int = distance
 
     def num_ways_to_win(self) -> int:
         lower_bound: int = ceil((self.time - sqrt(self.time**2 - 4 * self.distance)) / 2)
@@ -15,7 +15,7 @@ class Race:
 def part1(lines: list[str]) -> int:
 
     def extract_data(line: str) -> list[int]:
-        line = line.strip().split(" ")
+        line: list[str] = line.strip().split(" ")
         result: list[int] = []
         for part in line:
             try: result.append(int(part))
@@ -31,7 +31,7 @@ def part1(lines: list[str]) -> int:
 def part2(lines: list[str]) -> int:
 
     def extract_data(line: str) -> int:
-        line = line.strip().split(" ")[1:]
+        line: list[str] = line.strip().split(" ")[1:]
         return int("".join([part for part in line if line != ""]))
     
     return Race(extract_data(lines[0]), extract_data(lines[1])).num_ways_to_win()
@@ -39,7 +39,7 @@ def part2(lines: list[str]) -> int:
 
 def main():
     with open("Wait For It/input.txt", "r") as f:
-        lines = f.readlines()
+        lines: list[str] = f.readlines()
 
     print(part2(lines))
 
