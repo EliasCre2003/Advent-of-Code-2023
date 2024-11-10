@@ -1,6 +1,12 @@
 from math import ceil
 
 class Ground:
+
+    PIPE_TYPES = {'-', '|', 'L', 'J', 'F', '7', 'S'}
+    HORIZONTAL_PIPES = {'-', 'L', 'F', '7'}
+    VERTICAL_PIPES = {'|', 'L', 'F', '7', 'J'}
+
+
     def __init__(self, data: list[list[str]]):
         self.data = data
     
@@ -54,6 +60,28 @@ class Ground:
             loop_coords.append(current)
             length += 1
         return length
+    
+    def loop_inside_area(self) -> int:
+
+        def replace_s() -> list[list[tuple[int, int]]]:
+            data = [row.copy() for row in self.data]
+            s_coord = self.starting_position()
+            if self.get_pipe_at(s_coord[0], s_coord[1] + 1) in Ground.VERTICAL_PIPES:
+                ...
+
+        loop = self.calculate_loop()
+        area: int = 0
+        data_without_s = replace_s(self.data)
+        for y, row in enumerate(data_without_s):
+            inside: bool = False
+            last_pipe: str
+            for x, pipe in enumerate(row):
+                if (x, y) in loop:
+                    if not (last_pipe in Ground.HORIZONTAL_PIPES and pipe in Ground.HORIZONTAL_PIPES):
+                        inside = not inside
+                    last_pipe = pipe
+                else:
+                    area += inside
     
     def loop_length(self) -> int:
         return len(self.calculate_loop())
