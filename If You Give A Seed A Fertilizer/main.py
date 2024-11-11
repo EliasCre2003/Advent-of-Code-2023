@@ -19,9 +19,9 @@ class Result:
 class Conversion:
     def __init__(self, destination_start: int, source_start: int, size: int):
         self.ds: int = destination_start
-        self.de: int = destination_start + size
+        self.de: int = destination_start + size - 1
         self.ss: int = source_start
-        self.se: int = source_start + size
+        self.se: int = source_start + size - 1
         self.size: int = size
         self.difference: int = destination_start - source_start
 
@@ -30,6 +30,7 @@ class Conversion:
     
     def __repr__(self) -> str:
         return str(self)
+    
 
 def check_result_set_validity(results: list[Result]) -> bool:
     for result1 in results:
@@ -101,8 +102,8 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
 
 
             # If the whole conversion range was applicable, remove it from the map as it won't be needed anymore
-            if ret[1][0] and ret[1][1]:
-                conversion_map.pop(i)
+            # if ret[1][0] and ret[1][1]:
+            #     conversion_map.pop(i)
             
             # Move on to the next result
             break
@@ -135,7 +136,7 @@ def main():
         lines = f.readlines()
 
     seed_line = lines[0].split(" ")
-    seed_ranges = [Result(int(seed_line[i]), int(seed_line[i]) + int(seed_line[i+1])) 
+    seed_ranges = [Result(int(seed_line[i]), int(seed_line[i]) + int(seed_line[i+1]) - 1) 
                    for i in range(1, len(seed_line), 2)]
 
     conversion_maps: list[list[Conversion]] = parse_maps(lines[2:])
