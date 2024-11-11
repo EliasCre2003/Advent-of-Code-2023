@@ -96,43 +96,53 @@ class Ground:
             
         data_without_s = replace_s()
         
-        v_inside_coords: set[tuple[int, int]] = set()
+        
+        h_inside_coords: set[tuple[int, int]] = set()
         for y, row in enumerate(data_without_s):
-            intersections: list[int] = []
+            # intersections: list[int] = []
+            is_inside: bool = False
             for x, pipe in enumerate(row):
-                last_tile: str = '' if x == 0 else row[x-1]
+                if (x, y) == (13, 3):
+                    pass
                 if (x, y) in loop:
+                    last_tile: str = '' if x == 0 else row[x-1]
                     if (pipe == '|' or 
                         (pipe in ('7', 'J') and Ground.horizontal_connection_possible(last_tile, pipe)) or 
-                        (pipe in ('L', 'F')) and len(intersections) == 1):
-                        intersections.append(x)
-                if len(intersections) < 2:
-                    continue
-                for i in range(intersections[0]+1, intersections[1]):
-                    v_inside_coords.add((i, y))
-                    data_without_s[y][i] = 'I'
-                intersections.clear()
+                        (pipe in ('L', 'F')) and is_inside):
+                        is_inside = not is_inside
+                elif is_inside:
+                    h_inside_coords.add((x, y))
+                # if len(intersections) < 2:
+                #     continue
+                # for i in range(intersections[0]+1, intersections[1]):
+                #     h_inside_coords.add((i, y))
+                #     # data_without_s[y][i] = 'I'
+                # intersections.clear()
 
-        h_inside_coords: set[tuple[int, int]] = set()
+        v_inside_coords: set[tuple[int, int]] = set()
         for x in range(len(data_without_s[0])):
-            intersections: list[int] = []
+            # intersections: list[int] = []
+            is_inside: bool = False
             for y in range(len(data_without_s)):
-                last_tile: str = '' if y == 0 else data_without_s[y-1][x]
                 pipe = data_without_s[y][x]
+                if (x, y) == (14, 0):
+                    pass
                 if (x, y) in loop:
+                    last_tile: str = '' if y == 0 else data_without_s[y-1][x]
                     if (pipe == '-' or 
-                        (pipe in ('L', 'F') and Ground.vertical_connection_possible(last_tile, pipe)) or
-                        (pipe in ('7', 'J') and len(intersections) == 1)):
-                        intersections.append(y)
-                if len(intersections) < 2:
-                    continue
-                for i in range(intersections[0]+1, intersections[1]):
-                    h_inside_coords.add((x, i))
-                intersections.clear()
+                        (pipe in ('L', 'J') and Ground.vertical_connection_possible(last_tile, pipe)) or
+                        (pipe in ('7', 'F') and is_inside)):
+                        is_inside = not is_inside
+                elif is_inside:
+                    v_inside_coords.add((x, y))
 
+        # inside = h_inside_coords.intersection(v_inside_coords)
+        inside = {coord for coord in h_inside_coords.union(v_inside_coords) if coord in v_inside_coords and h_inside_coords}
+        for x, y in inside:
+            data_without_s[y][x] = 'I'
         for row in data_without_s:
             print(row)
-        return len(v_inside_coords.intersection(h_inside_coords))
+        return len(v_inside_coords)
     
     @staticmethod
     def horizontal_connection_possible(pipe1: str, pipe2: str) -> bool:
