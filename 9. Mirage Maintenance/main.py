@@ -39,7 +39,7 @@ def part2(lines: list[str]) -> int:
     return sum(history.predict_previous() for history in histories)
 
 def main():
-    with open("Mirage Maintenance/input.txt", "r") as f:
+    with open("9. Mirage Maintenance/input.txt", "r") as f:
         lines = f.readlines()
     print(part2(lines))
     

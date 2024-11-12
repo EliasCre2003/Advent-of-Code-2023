@@ -32,7 +32,7 @@ class Universe:
         return distances
 
 def main():
-    with open("Cosmic Expansion/input.txt", "r") as f:
+    with open("11. Cosmic Expansion/input.txt", "r") as f:
         lines = f.readlines()
 
     for i, expansion in enumerate([2, 1_000_000]):

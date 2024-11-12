@@ -1,5 +1,5 @@
 lines = []
-with open("Trebuchet/input2.txt", 'r') as f:
+with open("1. Trebuchet/input2.txt", 'r') as f:
     for line in f:
         lines.append(line)
 

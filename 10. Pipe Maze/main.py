@@ -182,7 +182,7 @@ def part2(lines: list[str]) -> int:
     return ground.loop_inside_area()
 
 def main():
-    with open("Pipe Maze/test.txt") as f:
+    with open("10. Pipe Maze/test.txt") as f:
         lines = f.readlines()
 
     print(part2(lines))

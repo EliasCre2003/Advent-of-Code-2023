@@ -54,7 +54,7 @@ def part2(lines: list[str]) -> int:
 
 
 def main():
-    with open("Haunted Wasteland/input.txt", "r") as f:
+    with open("8. Haunted Wasteland/input.txt", "r") as f:
         lines = f.readlines()
     print(f"Part 1: {part1(lines)}\nPart2: {part2(lines)}")
 

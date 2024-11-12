@@ -132,7 +132,7 @@ def parse_maps(lines: list[str]) -> list[list[Conversion]]:
 
     
 def main():
-    with open("If You Give A Seed A Fertilizer/input.txt", "r") as f:
+    with open("5. If You Give A Seed A Fertilizer/input.txt", "r") as f:
         lines = f.readlines()
 
     seed_line = lines[0].split(" ")

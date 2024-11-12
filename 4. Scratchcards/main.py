@@ -1,4 +1,4 @@
-with open("Scratchcards/input.txt", "r") as file:
+with open("4. Scratchcards/input.txt", "r") as file:
     lines: list[str] = file.readlines()
 
 

@@ -38,7 +38,7 @@ def part2(lines: list[str]) -> int:
 
 
 def main():
-    with open("Wait For It/input.txt", "r") as f:
+    with open("6. Wait For It/input.txt", "r") as f:
         lines: list[str] = f.readlines()
 
     print(part2(lines))

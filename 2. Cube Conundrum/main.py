@@ -2,7 +2,7 @@ bag_content = {"red": 12, "green": 13, "blue": 14}
 
 lines: list[str] = []
 
-with open("Cube Conundrum/input.txt") as f:
+with open("2. Cube Conundrum/input.txt") as f:
     lines = f.readlines()
     
 class Game:

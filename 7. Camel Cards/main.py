@@ -126,7 +126,7 @@ class Part2(AbstractHand):
         return super()._hand_type_helper(cards)
 
 def main():
-    with open("Camel Cards/input.txt", "r") as f:
+    with open("7. Camel Cards/input.txt", "r") as f:
         lines = f.readlines()
 
     PART = Part1

@@ -4,7 +4,7 @@ digits: set[str] = set()
 for i in range(10):
     digits.add(str(i))
 
-with open("Gear Ratios/input.txt", "r") as f:
+with open("3. Gear Ratios/input.txt", "r") as f:
     lines = f.readlines()
 lines = [line[0:-1] for line in lines]
 
