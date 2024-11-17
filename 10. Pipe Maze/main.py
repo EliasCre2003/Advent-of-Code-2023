@@ -6,11 +6,15 @@ class Ground:
     HORIZONTAL_PIPES = BENDING_PIPES.union({'-'})
     VERTICAL_PIPES = BENDING_PIPES.union({'|'})
     PIPE_TYPES = HORIZONTAL_PIPES.union(VERTICAL_PIPES)
-    
-
 
     def __init__(self, data: list[list[str]]):
         self.data = data
+
+    def __str__(self) -> str:
+        return '\n'.join([''.join(row) for row in self.data])
+    
+    def __repr__(self) -> str:
+        return str(self)
     
     def starting_position(self) -> tuple[int, int]:
         for y, row in enumerate(self.data):
@@ -101,23 +105,30 @@ class Ground:
         for y, row in enumerate(data_without_s):
             # intersections: list[int] = []
             is_inside: bool = False
-            for x, pipe in enumerate(row):
-                if (x, y) == (13, 3):
+            for x, pipe in enumerate(row):                
+                if (x, y) == (0, 1):
                     pass
                 if (x, y) in loop:
                     last_tile: str = '' if x == 0 else row[x-1]
                     if (pipe == '|' or 
-                        (pipe in ('7', 'J') and Ground.horizontal_connection_possible(last_tile, pipe)) or 
-                        (pipe in ('L', 'F')) and is_inside):
+                        (pipe in ('7', 'J') and Ground.horizontal_connection_possible(last_tile, pipe) and is_inside) or 
+                        (pipe in ('L', 'F')) and (is_inside or not Ground.horizontal_connection_possible(last_tile, pipe))):
                         is_inside = not is_inside
                 elif is_inside:
                     h_inside_coords.add((x, y))
+                    data_without_s[y][x] = 'I'
+                    print('\n'.join([''.join(row) for row in data_without_s]) + '\n')
+                else:
+                    data_without_s[y][x] = 'O'
+                    print('\n'.join([''.join(row) for row in data_without_s]) + '\n')
                 # if len(intersections) < 2:
                 #     continue
                 # for i in range(intersections[0]+1, intersections[1]):
                 #     h_inside_coords.add((i, y))
                 #     # data_without_s[y][i] = 'I'
                 # intersections.clear()
+
+        print('\n'.join([''.join(row) for row in data_without_s]))
 
         v_inside_coords: set[tuple[int, int]] = set()
         for x in range(len(data_without_s[0])):
@@ -137,12 +148,10 @@ class Ground:
                     v_inside_coords.add((x, y))
 
         # inside = h_inside_coords.intersection(v_inside_coords)
-        inside = {coord for coord in h_inside_coords.union(v_inside_coords) if coord in v_inside_coords and h_inside_coords}
-        for x, y in inside:
-            data_without_s[y][x] = 'I'
-        for row in data_without_s:
-            print(row)
-        return len(v_inside_coords)
+        inside = {coord for coord in h_inside_coords.union(v_inside_coords) if coord in v_inside_coords and coord in h_inside_coords}
+        # for x, y in inside:
+        #     data_without_s[y][x] = 'I'
+        return len(inside)
     
     @staticmethod
     def horizontal_connection_possible(pipe1: str, pipe2: str) -> bool:
