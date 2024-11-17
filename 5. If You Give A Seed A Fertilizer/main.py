@@ -3,6 +3,7 @@ class Result:
         self.start: int = start
         self.end: int = end
         self.conversion: int = conversion
+
     
     def exec_conversion(self) -> None:
         self.start += self.conversion
@@ -19,7 +20,6 @@ class Result:
 class Conversion:
     def __init__(self, destination_start: int, source_start: int, size: int):
         self.ds: int = destination_start
-        self.de: int = destination_start + size - 1
         self.ss: int = source_start
         self.se: int = source_start + size - 1
         self.size: int = size
@@ -30,18 +30,7 @@ class Conversion:
     
     def __repr__(self) -> str:
         return str(self)
-    
 
-def check_result_set_validity(results: list[Result]) -> bool:
-    for result1 in results:
-        for result2 in results:
-            if result1.start > result1.end:
-                return False
-            if result1 == result2: continue
-            if not ((result1.start < result2.start and result1.end < result2.start) 
-                    or (result1.start > result2.end and result1.end > result2.end)):
-                return False
-    return True
 
 def convert_result(result: Result, conversion: Conversion) -> tuple[Result, list[Result]] | None:
     # Checks if the result range is outside of the conversion range
@@ -82,13 +71,13 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
     new_results: list[Result] = []
 
     # Run until all results have been converted
-    while len(results) > 0:
+    while results:
         
         # Save the currently handled result from the result list 
-        result: Result = results.pop(0)
+        result = results.pop(0)
 
         # Find the conversion range that can be applied to the result
-        for i, conversion in enumerate(conversion_map):
+        for conversion in conversion_map:
 
             # If the conversion range is not applicable to the result, skip it
             if (ret := convert_result(result, conversion)) is None:
@@ -99,11 +88,6 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
 
             # If there are any new unconverted ranges, add them to the results list
             [results.append(result) for result in ret[1] if result is not None]
-
-
-            # If the whole conversion range was applicable, remove it from the map as it won't be needed anymore
-            # if ret[1][0] and ret[1][1]:
-            #     conversion_map.pop(i)
             
             # Move on to the next result
             break
@@ -113,10 +97,15 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
     
     return new_results
 
+def run_all_maps(results: list[Result], maps: list[list[Conversion]]) -> list[Result]:
+    for map in maps:
+        results = run_conversion_map(map, results)
+        [result.exec_conversion() for result in results]
+    return results
 
 def parse_maps(lines: list[str]) -> list[list[Conversion]]:
     lines: list[str] = [line for line in lines 
-             if line[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\n']]
+             if line[0] in '0123456789\n']
     map_lines: list[list[str]] = [] 
     curr_map: list[str] = []
     for line in lines:
@@ -125,31 +114,29 @@ def parse_maps(lines: list[str]) -> list[list[Conversion]]:
         else:
             map_lines.append(curr_map)
             curr_map = []
-
+    map_lines.append(curr_map)
     return [[Conversion(*(int(arg) for arg in conversion_line)) 
          for conversion_line in conversion_lines] 
          for conversion_lines in map_lines]
-
     
+def part1(lines: list[str]) -> int:
+    seed_line = lines[0].removeprefix("seeds: ").split(" ")
+    results = [Result(int(seed), int(seed)) for seed in seed_line]
+    conversion_maps = parse_maps(lines[2:])
+    return min(result.start for result in run_all_maps(results, conversion_maps))
+
+def part2(lines: list[str]) -> int:
+    seed_line = lines[0].removeprefix("seeds: ").split(" ")
+    results = [Result(start := int(seed_line[i]), start + int(seed_line[i+1]) - 1) for i in range(0, len(seed_line), 2)]
+    conversion_maps = parse_maps(lines[2:])
+    return min(result.start for result in run_all_maps(results, conversion_maps))
+
 def main():
     with open("5. If You Give A Seed A Fertilizer/input.txt", "r") as f:
         lines = f.readlines()
 
-    seed_line = lines[0].split(" ")
-    seed_ranges = [Result(int(seed_line[i]), int(seed_line[i]) + int(seed_line[i+1]) - 1) 
-                   for i in range(1, len(seed_line), 2)]
-
-    conversion_maps: list[list[Conversion]] = parse_maps(lines[2:])
-    results: list[Result] = seed_ranges
-    for map in conversion_maps:
-        results = run_conversion_map(map, results)
-        [result.exec_conversion() for result in results]
-
-    smallest = results[0].start
-    for i in results:
-        smallest = i.start if i.start < smallest else smallest
-        
-    print(smallest)
+    for i, part in enumerate([part1, part2]):
+        print(f'Part {i+1}: {part(lines)}')
 
 if __name__ == "__main__":
     main()
