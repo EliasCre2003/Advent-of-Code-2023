@@ -1,6 +1,6 @@
 from math import ceil
 
-class Ground:
+class Maze:
 
     BENDING_PIPES = {'L', 'F', '7', 'J'}
     HORIZONTAL_PIPES = BENDING_PIPES.union({'-'})
@@ -70,7 +70,7 @@ class Ground:
     
     def loop_inside_area(self) -> int:
 
-        loop = self.calculate_loop()
+        pipe_loop = self.calculate_loop()
 
         def replace_s() -> list[list[tuple[int, int]]]:
 
@@ -78,16 +78,14 @@ class Ground:
             s_coord = self.starting_position()
 
             def determine_pipe() -> str:
-                if self.get_pipe_at((s_coord[0], s_coord[1] + 1)) in Ground.VERTICAL_PIPES:
-                    if self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Ground.VERTICAL_PIPES:
+                if self.get_pipe_at((s_coord[0], s_coord[1] + 1)) in Maze.VERTICAL_PIPES:
+                    if self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
                         return '|'
-                    # elif self.get_pipe_at(s_coord[0] - 1, s_coord[1]) and self.get_pipe_at(s_coord[0] + 1, s_coord[1]) in Ground.VERTICAL_PIPES:
-                    #     return '-'
-                    elif self.get_pipe_at((s_coord[0] - 1, s_coord[1])) in Ground.VERTICAL_PIPES:
+                    elif self.get_pipe_at((s_coord[0] - 1, s_coord[1])) in Maze.VERTICAL_PIPES:
                         return '7'
                     else:
                         return 'F'
-                elif self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Ground.VERTICAL_PIPES:
+                elif self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
                     if self.get_pipe_at((s_coord[0] - 1, s_coord[1])):
                         return 'J'
                     else:
@@ -101,70 +99,26 @@ class Ground:
         data_without_s = replace_s()
         
         
-        h_inside_coords: set[tuple[int, int]] = set()
+        inside_coords: set[tuple[int, int]] = set()
         for y, row in enumerate(data_without_s):
-            # intersections: list[int] = []
-            is_inside: bool = False
-            for x, pipe in enumerate(row):                
-                if (x, y) == (0, 1):
-                    pass
-                if (x, y) in loop:
-                    last_tile: str = '' if x == 0 else row[x-1]
-                    if (pipe == '|' or 
-                        (pipe in ('7', 'J') and Ground.horizontal_connection_possible(last_tile, pipe) and is_inside) or 
-                        (pipe in ('L', 'F')) and (is_inside or not Ground.horizontal_connection_possible(last_tile, pipe))):
+            is_inside = False
+            last_turn = ''
+            for x, tile in enumerate(row):
+                if (x, y) in pipe_loop:
+                    if (tile == '|' or
+                        (last_turn + tile in ['L7', 'FJ'])):
                         is_inside = not is_inside
+                    elif tile in 'FL':
+                        last_turn = tile
                 elif is_inside:
-                    h_inside_coords.add((x, y))
-                    data_without_s[y][x] = 'I'
-                    print('\n'.join([''.join(row) for row in data_without_s]) + '\n')
-                else:
-                    data_without_s[y][x] = 'O'
-                    print('\n'.join([''.join(row) for row in data_without_s]) + '\n')
-                # if len(intersections) < 2:
-                #     continue
-                # for i in range(intersections[0]+1, intersections[1]):
-                #     h_inside_coords.add((i, y))
-                #     # data_without_s[y][i] = 'I'
-                # intersections.clear()
-
-        print('\n'.join([''.join(row) for row in data_without_s]))
-
-        v_inside_coords: set[tuple[int, int]] = set()
-        for x in range(len(data_without_s[0])):
-            # intersections: list[int] = []
-            is_inside: bool = False
-            for y in range(len(data_without_s)):
-                pipe = data_without_s[y][x]
-                if (x, y) == (14, 0):
-                    pass
-                if (x, y) in loop:
-                    last_tile: str = '' if y == 0 else data_without_s[y-1][x]
-                    if (pipe == '-' or 
-                        (pipe in ('L', 'J') and Ground.vertical_connection_possible(last_tile, pipe)) or
-                        (pipe in ('7', 'F') and is_inside)):
-                        is_inside = not is_inside
-                elif is_inside:
-                    v_inside_coords.add((x, y))
-
-        # inside = h_inside_coords.intersection(v_inside_coords)
-        inside = {coord for coord in h_inside_coords.union(v_inside_coords) if coord in v_inside_coords and coord in h_inside_coords}
-        # for x, y in inside:
-        #     data_without_s[y][x] = 'I'
-        return len(inside)
+                    inside_coords.add((x, y))
+        return len(inside_coords)
     
     @staticmethod
     def horizontal_connection_possible(pipe1: str, pipe2: str) -> bool:
         """
         Checks if a left to right connecction is possible
         """
-        # if Ground.HORIZONTAL_PIPES.union({pipe1, pipe2}) != Ground.HORIZONTAL_PIPES:
-        #     return False
-        # if pipe1 in ('-', 'F', 'L'):
-        #     return pipe2 in ('7', 'J', '-')
-        # if pipe2 in ('-', '7', 'J'):
-        #     return pipe1 in ('F', 'L', '-')
-        # return False
         return pipe1 in ('-', 'F', 'L') and pipe2 in ('7', 'J', '-')
     
     @staticmethod
@@ -172,29 +126,24 @@ class Ground:
         """
         Checks if a downwards connection is possible
         """
-        return pipe1 in ('|', '7', 'F') and pipe2 in ('|', 'L', 'J')
-
-        
-        
-        
+        return pipe1 in ('|', '7', 'F') and pipe2 in ('|', 'L', 'J')        
 
     def loop_length(self) -> int:
         return len(self.calculate_loop())
 
 
-def part1(lines: list[str]) -> int:
-    ground = Ground([list(line.strip()) for line in lines])
-    return ceil(ground.loop_length() / 2)
+def part1(maze: Maze) -> int:
+    return ceil(maze.loop_length() / 2)
 
-def part2(lines: list[str]) -> int:
-    ground = Ground([list(line.strip()) for line in lines])
-    return ground.loop_inside_area()
+def part2(maze: Maze) -> int:
+    return maze.loop_inside_area()
 
 def main():
-    with open("10. Pipe Maze/test.txt") as f:
+    with open("10. Pipe Maze/input.txt") as f:
         lines = f.readlines()
-
-    print(part2(lines))
+    maze = Maze([list(line.strip()) for line in lines])
+    for i, part in enumerate([part1, part2]):
+        print(f'Part {i+1}: {part(maze)}')
 
 if __name__ == "__main__":
     main()
