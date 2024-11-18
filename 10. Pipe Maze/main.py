@@ -98,13 +98,15 @@ class Maze:
             
         data_without_s = replace_s()
         
-        
+        pipe_loop_map = {x1: set(y for x2, y in pipe_loop if x1 == x2) 
+                         for x1 in range(len(data_without_s[0]))}
+
         inside_coords: set[tuple[int, int]] = set()
         for y, row in enumerate(data_without_s):
             is_inside = False
             last_turn = ''
             for x, tile in enumerate(row):
-                if (x, y) in pipe_loop:
+                if y in pipe_loop_map[x]:
                     if (tile == '|' or
                         (last_turn + tile in ['L7', 'FJ'])):
                         is_inside = not is_inside
