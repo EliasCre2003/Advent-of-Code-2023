@@ -82,17 +82,16 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
         for conversion in conversion_map:
 
             # If the conversion range is not applicable to the result, skip it
-            if (ret := convert_result(result, conversion)) is None:
-                continue
+            if (ret := convert_result(result, conversion)):
             
-            # Add the new converted result to the new results list
-            new_results.append(ret[0])
+                # Add the new converted result to the new results list
+                new_results.append(ret[0])
 
-            # If there are any new unconverted ranges, add them to the results list
-            [results.append(result) for result in ret[1] if result is not None]
+                # If there are any new unconverted ranges, add them to the results list
+                [results.append(result) for result in ret[1] if result is not None]
             
-            # Move on to the next result
-            break
+                # Move on to the next result
+                break
         else:
             # If no conversion range was applicable, add the result to the new results list
             new_results.append(result)
