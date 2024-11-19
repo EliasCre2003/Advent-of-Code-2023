@@ -1,5 +1,5 @@
 class Universe:
-    def __init__(self, universe: list[list[str]], expansion_factor: int = 1_000_000):
+    def __init__(self, universe: list[list[str]], expansion_factor: int = 1):
         self._galaxies: list[list[bool]] = [[cell == '#' for cell in row] for row in universe]
         self._expansion_factor: int = expansion_factor
         self._long_rows: list[int] = [i for i, row in enumerate(self._galaxies) if sum(row) == 0]
