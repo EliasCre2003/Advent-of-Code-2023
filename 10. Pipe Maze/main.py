@@ -24,9 +24,6 @@ class Maze:
     def get_pipe_at(self, coord: tuple[int, int]) -> str:
         return self.data[coord[1]][coord[0]]
     
-    # def set_pipe_at(self, coord: tuple[int, int], pipe: str) -> None:
-    #     self.data[coord[1]][coord[0]] = pipe
-    
     def next_pipe(self, current_coord: tuple[int, int], previous_coord: tuple[int, int]) -> tuple[str, tuple[int, int], tuple[int, int]]:
         current_pipe = self.get_pipe_at(current_coord)
         direction_list = {
@@ -70,65 +67,42 @@ class Maze:
     
     def loop_inside_area(self) -> int:
 
-        pipe_loop = self.calculate_loop()
-
-        def replace_s() -> list[list[tuple[int, int]]]:
-
-            data = [row.copy() for row in self.data]
-            s_coord = self.starting_position()
-
-            def determine_pipe() -> str:
-                if self.get_pipe_at((s_coord[0], s_coord[1] + 1)) in Maze.VERTICAL_PIPES:
-                    if self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
-                        return '|'
-                    elif self.get_pipe_at((s_coord[0] - 1, s_coord[1])) in Maze.VERTICAL_PIPES:
-                        return '7'
-                    else:
-                        return 'F'
-                elif self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
-                    if self.get_pipe_at((s_coord[0] - 1, s_coord[1])):
-                        return 'J'
-                    else:
-                        return 'L'
+        def determine_pipe(s_coord: tuple[int, int]) -> str:
+            if self.get_pipe_at((s_coord[0], s_coord[1] + 1)) in Maze.VERTICAL_PIPES:
+                if self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
+                    return '|'
+                elif self.get_pipe_at((s_coord[0] - 1, s_coord[1])) in Maze.VERTICAL_PIPES:
+                    return '7'
                 else:
-                    return '-'
-                
-            data[s_coord[1]][s_coord[0]] = determine_pipe()
-            return data
-            
-        data_without_s = replace_s()
+                    return 'F'
+            elif self.get_pipe_at((s_coord[0], s_coord[1] - 1)) in Maze.VERTICAL_PIPES:
+                if self.get_pipe_at((s_coord[0] - 1, s_coord[1])):
+                    return 'J'
+                else:
+                    return 'L'
+            else:
+                return '-'
         
-        pipe_loop_map = {x1: set(y for x2, y in pipe_loop if x1 == x2) 
-                         for x1 in range(len(data_without_s[0]))}
+        pipe_loop_map = {x1: [] for x1 in range(len(self.data[0]))}
+        for x, y in self.calculate_loop():
+            pipe_loop_map[x].append(y)
 
-        inside_coords: set[tuple[int, int]] = set()
-        for y, row in enumerate(data_without_s):
+        area = 0
+        for y, row in enumerate(self.data):
             is_inside = False
             last_turn = ''
             for x, tile in enumerate(row):
+                if tile == 'S':
+                    tile = determine_pipe((x, y))
                 if y in pipe_loop_map[x]:
                     if (tile == '|' or
                         (last_turn + tile in ['L7', 'FJ'])):
                         is_inside = not is_inside
                     elif tile in 'FL':
                         last_turn = tile
-                elif is_inside:
-                    inside_coords.add((x, y))
-        return len(inside_coords)
-    
-    @staticmethod
-    def horizontal_connection_possible(pipe1: str, pipe2: str) -> bool:
-        """
-        Checks if a left to right connecction is possible
-        """
-        return pipe1 in ('-', 'F', 'L') and pipe2 in ('7', 'J', '-')
-    
-    @staticmethod
-    def vertical_connection_possible(pipe1: str, pipe2: str) -> bool:
-        """
-        Checks if a downwards connection is possible
-        """
-        return pipe1 in ('|', '7', 'F') and pipe2 in ('|', 'L', 'J')        
+                else:
+                    area += is_inside
+        return area
 
     def loop_length(self) -> int:
         return len(self.calculate_loop())
