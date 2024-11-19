@@ -1,9 +1,9 @@
 class Result:
+    
     def __init__(self, start: int = 0, end: int = 0, conversion: int = 0):
         self.start: int = start
         self.end: int = end
         self.conversion: int = conversion
-
     
     def exec_conversion(self) -> None:
         self.start += self.conversion
@@ -18,6 +18,7 @@ class Result:
     
 
 class Conversion:
+    
     def __init__(self, destination_start: int, source_start: int, size: int):
         self.ds: int = destination_start
         self.ss: int = source_start
@@ -69,6 +70,7 @@ def convert_result(result: Result, conversion: Conversion) -> tuple[Result, list
 def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) -> list[Result]:
     # List for storing all the new results
     new_results: list[Result] = []
+    results = results.copy()
 
     # Run until all results have been converted
     while results:
@@ -97,11 +99,13 @@ def run_conversion_map(conversion_map: list[Conversion], results: list[Result]) 
     
     return new_results
 
+
 def run_all_maps(results: list[Result], maps: list[list[Conversion]]) -> list[Result]:
     for map in maps:
         results = run_conversion_map(map, results)
         [result.exec_conversion() for result in results]
     return results
+
 
 def parse_maps(lines: list[str]) -> list[list[Conversion]]:
     lines: list[str] = [line for line in lines 
@@ -118,12 +122,14 @@ def parse_maps(lines: list[str]) -> list[list[Conversion]]:
     return [[Conversion(*(int(arg) for arg in conversion_line)) 
          for conversion_line in conversion_lines] 
          for conversion_lines in map_lines]
-    
+
+
 def part1(lines: list[str]) -> int:
     seed_line = lines[0].removeprefix("seeds: ").split(" ")
     results = [Result(int(seed), int(seed)) for seed in seed_line]
     conversion_maps = parse_maps(lines[2:])
     return min(result.start for result in run_all_maps(results, conversion_maps))
+
 
 def part2(lines: list[str]) -> int:
     seed_line = lines[0].removeprefix("seeds: ").split(" ")
@@ -131,12 +137,14 @@ def part2(lines: list[str]) -> int:
     conversion_maps = parse_maps(lines[2:])
     return min(result.start for result in run_all_maps(results, conversion_maps))
 
+
 def main():
     with open("5. If You Give A Seed A Fertilizer/input.txt", "r") as f:
         lines = f.readlines()
 
     for i, part in enumerate([part1, part2]):
         print(f'Part {i+1}: {part(lines)}')
+
 
 if __name__ == "__main__":
     main()
